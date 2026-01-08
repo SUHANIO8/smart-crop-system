@@ -1,99 +1,120 @@
-// src/pages/Login.jsx
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useAuth } from '../hooks/useAuth.jsx';
-import authService from '../services/auth.service.js'; // default import
-import Button from '../components/Button.jsx';
-import Input from '../components/Input.jsx';
-import PasswordInput from '../components/PasswordInput.jsx';
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { useAuth } from '../hooks/useAuth.jsx'
+import authService from '../services/auth.service.js'
+import Button from '../components/Button.jsx'
+import Input from '../components/Input.jsx'
+import PasswordInput from '../components/PasswordInput.jsx'
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const { login } = useAuth()
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+    e.preventDefault()
+    setError('')
+    setLoading(true)
 
     try {
-      const result = await authService.login({ email: email.trim(), password: password.trim() });
-      // result should be { token, user }
-      login(result); // AuthProvider will store sc_token & sc_user
-      navigate('/');
+      const result = await authService.login({
+        email: email.trim(),
+        password: password.trim()
+      })
+      login(result)
+      navigate('/')
     } catch (err) {
-      console.error('Login failed:', err, err?.response?.data);
-      // Prefer server message if available
-      const message = err?.response?.data?.message || err?.message || 'Login failed. Please try again.';
-      setError(message);
+      setError(
+        err?.response?.data?.message ||
+        err?.message ||
+        'Login failed. Please try again.'
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <motion.div
-      className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen bg-[#f6fbf7] flex items-center justify-center px-6 py-20"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
     >
-      <motion.div
-        className="max-w-md w-full space-y-8 transition-all duration-300 hover:shadow-xl"
-        whileHover={{ scale: 1.02 }}
-        transition={{ type: "spring", stiffness: 300 }}
-      >
+      <div className="w-full max-w-5xl grid md:grid-cols-2 gap-16 mb-24">
+
+        {/* LEFT CONTENT */}
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-              create a new account
-            </Link>
+          <h1 className="text-5xl font-extrabold text-[#184d37] mb-6">
+            Welcome Back
+          </h1>
+
+          <p className="text-lg text-[#5f7f73] mb-10">
+            Sign in to your account to access personalized farming insights,
+            manage predictions, and track crop performance.
           </p>
+
+          <ul className="space-y-4 text-[#184d37] font-medium">
+            <li>✔ Access your farming profile</li>
+            <li>✔ View crop predictions</li>
+            <li>✔ Get personalized recommendations</li>
+            <li>✔ Track your farm progress</li>
+          </ul>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+
+        {/* RIGHT FORM */}
+        <div className="bg-[#dceedd] rounded-3xl p-10">
+          <h2 className="text-3xl font-bold text-[#184d37] mb-8">
+            Log In
+          </h2>
+
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
               {error}
             </div>
           )}
-          <Input
-            label="Email address"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            required
-          />
-          <PasswordInput
-            label="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            required
-          />
-          <div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign in'}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <Input
+              label="Email Address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+            />
+
+            <PasswordInput
+              label="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#184d37] hover:bg-[#123b2b] text-white py-3 rounded-xl text-lg"
+            >
+              {loading ? 'Signing in…' : 'Log In'}
             </Button>
-          </div>
-        </form>
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            Demo credentials: user@example.com / password
+          </form>
+
+          <p className="mt-8 text-center text-sm text-[#5f7f73]">
+            Don’t have an account?{' '}
+            <Link to="/register" className="text-[#184d37] font-semibold">
+              Create one
+            </Link>
           </p>
         </div>
-      </motion.div>
+      </div>
     </motion.div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

@@ -243,13 +243,14 @@ export default function Predict() {
            />
         </div>
 
-        <Button 
-          type="submit" 
-          className="md:col-span-2 mt-4 py-4 bg-slate-900 hover:bg-black text-white text-lg font-black uppercase tracking-tighter" 
-          disabled={loading}
-        >
-          {loading ? 'Analyzing Data...' : 'Generate Ranked Recommendation'}
-        </Button>
+       <Button
+  type="submit"
+  className="md:col-span-2 mt-6"
+  disabled={loading}
+>
+   Get Prediction
+</Button>
+
       </form>
 
       {error && (

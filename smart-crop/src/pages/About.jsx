@@ -19,7 +19,7 @@ const About = () => {
 
 
       {/* ================= MISSION / TEAM / IMPACT ================= */}
-      <section className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-12 text-center">
+      <section className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-3 gap-12 text-center">
         <div>
           <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[#e6f2ea] flex items-center justify-center">
             🎯
@@ -112,10 +112,10 @@ const About = () => {
       </section>
 
       {/* ================= OUR STORY ================= */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
+      <section className="max-w-6xl mx-auto px-6 py-10">
         <h2 className="text-4xl font-extrabold mb-8">Our Story</h2>
 
-        <div className="space-y-6 text-lg text-[#5f7f73] leading-relaxed">
+        <div className="space-y-1 text-lg text-[#5f7f73] leading-relaxed">
           <p>
             SmartCrop was founded in 2020 by a team of agricultural engineers and
             data scientists who recognized the critical need for real-time soil

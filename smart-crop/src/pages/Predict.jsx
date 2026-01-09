@@ -102,7 +102,7 @@ export default function Predict() {
   const [city, setCity] = useState('');
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [form, setForm] = useState({
-    N: '', P: '', K: '', ph: '', temperature: '', humidity: '', rainfall: ''
+    nitrogen: '', phosphorus: '', potassium: '', ph: '', temperature: '', humidity: '', rainfall: ''
   });
 
   const [results, setResults] = useState([]);
@@ -121,9 +121,9 @@ export default function Predict() {
 
       if (data) {
         setForm({
-          N: data.N !== undefined ? String(data.N) : '',
-          P: data.P !== undefined ? String(data.P) : '',
-          K: data.K !== undefined ? String(data.K) : '',
+          nitrogen: data.nitrogen !== undefined ? String(data.nitrogen) : '',
+          phosphorus: data.phosphorus !== undefined ? String(data.phosphorus) : '',
+          potassium: data.potassium !== undefined ? String(data.potassium) : '',
           ph: data.ph !== undefined ? String(data.ph) : '',
           temperature: data.temperature !== undefined ? String(data.temperature) : '',
           humidity: data.humidity !== undefined ? String(data.humidity) : '',
@@ -247,9 +247,9 @@ export default function Predict() {
           </h2>
           
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Nitrogen (N)" value={form.N} readOnly />
-            <Input label="Phosphorus (P)" value={form.P} readOnly />
-            <Input label="Potassium (K)" value={form.K} readOnly />
+            <Input label="Nitrogen (N)" value={form.nitrogen} readOnly />
+            <Input label="Phosphorus (P)" value={form.phosphorus} readOnly />
+            <Input label="Potassium (K)" value={form.potassium} readOnly />
             <Input label="Soil pH" value={form.ph} readOnly />
             <Input label="Temp (°C)" value={form.temperature} readOnly />
             <Input label="Humidity (%)" value={form.humidity} readOnly />

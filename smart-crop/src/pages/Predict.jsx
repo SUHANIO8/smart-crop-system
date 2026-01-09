@@ -7,7 +7,6 @@ import { rtdb } from "../services/firebase";
 
 /**
  * CONSOLIDATED COMPONENTS
- * These are inlined to ensure the preview environment resolves all dependencies correctly.
  */
 
 const Button = ({ children, onClick, type = 'button', className = '', disabled = false, ...props }) => (
@@ -43,14 +42,12 @@ const Input = ({ label, type = 'text', value, onChange, placeholder, className =
  * CONSOLIDATED SERVICES & UTILITIES
  */
 
-// Simple Axios instance for Backend ML API
 const apiInstance = axios.create({
   baseURL: 'http://localhost:5000/api',
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' }
 });
 
-// Accessing environment variables safely
 const getEnv = (key) => {
   try {
     const env = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env : {};
@@ -60,7 +57,6 @@ const getEnv = (key) => {
   }
 };
 
-// Weather Service for Rainfall fallback
 const weatherService = {
   async getWeatherData(city) {
     const key = getEnv("VITE_WEATHER_API_KEY");
@@ -73,7 +69,6 @@ const weatherService = {
   }
 };
 
-// Image Service
 const imageService = {
   async getCropImage(cropName) {
     const key = getEnv("VITE_UNSPLASH_ACCESS_KEY");
@@ -88,7 +83,6 @@ const imageService = {
   }
 };
 
-// Explanation Generator Utility
 const generateExplanation = (crop, form) => {
   const factors = [];
   if (Number(form.ph) > 6 && Number(form.ph) < 7.5) factors.push("optimal soil pH levels");
@@ -116,17 +110,14 @@ export default function Predict() {
   const [fetchingSensors, setFetchingSensors] = useState(true);
   const [error, setError] = useState('');
 
- 
- 
-
+  // --- 1. FIREBASE AUTOMATED DATA SYNC ---
   useEffect(() => {
-  // 🔥 Correct Firebase path (matches your DB exactly)
-  const sensorRef = ref(rtdb, 'sensorData');
-
-  const unsubscribe = onValue(
-    sensorRef,
-    (snapshot) => {
+    // Listening to 'sensor' node directly based on your database structure
+    const sensorRef = ref(rtdb, 'sensor');
+    
+    const unsubscribe = onValue(sensorRef, (snapshot) => {
       const data = snapshot.val();
+      console.log("Live Sensor Data:", data);
 
       if (data) {
         setForm({
@@ -136,24 +127,20 @@ export default function Predict() {
           ph: data.ph !== undefined ? String(data.ph) : '',
           temperature: data.temperature !== undefined ? String(data.temperature) : '',
           humidity: data.humidity !== undefined ? String(data.humidity) : '',
-          rainfall: data.rainfall !== undefined ? String(data.rainfall) : form.rainfall
+          rainfall: data.rainfall !== undefined ? String(data.rainfall) : ''
         });
         setError('');
       } else {
-        setError('No sensor data found in Firebase.');
+        setError('No sensor data found. Ensure ESP32 is pushing to the "sensor" node.');
       }
-
       setFetchingSensors(false);
-    },
-    (err) => {
+    }, (err) => {
       setError('Firebase Sync Error: ' + err.message);
       setFetchingSensors(false);
-    }
-  );
+    });
 
-  return () => unsubscribe();
-}, []);
-
+    return () => unsubscribe();
+  }, []);
 
   const handleFetchRainfall = async () => {
     if (!city.trim()) return setError('Please enter a location to fetch rainfall data.');
@@ -193,7 +180,6 @@ export default function Predict() {
       );
       setResults(rankedCrops);
     } catch (err) {
-      // Mock results if Backend is offline
       const mock = [
         { rank: 1, crop: "Wheat", confidence: 94 },
         { rank: 2, crop: "Maize", confidence: 88 }
@@ -215,7 +201,7 @@ export default function Predict() {
           Smart Crop Recommendation
         </h1>
         <p className="text-slate-500 max-w-2xl mx-auto leading-relaxed">
-          Integrated intelligence combining ESP32 telemetry with regional rainfall analysis to deliver prioritized crop choices.
+          Integrated intelligence combining ESP32 telemetry with AI modeling.
         </p>
       </header>
 
@@ -287,7 +273,7 @@ export default function Predict() {
       </div>
 
       {error && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 p-4 bg-amber-50 text-amber-800 rounded-2xl border border-amber-200 text-center font-bold text-sm">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 p-4 bg-amber-50 text-amber-800 rounded-2xl border border-amber-100 text-center font-bold text-sm">
           {error}
         </motion.div>
       )}
@@ -316,10 +302,14 @@ export default function Predict() {
                 </div>
                 
                 <div className="p-10 flex flex-col justify-center">
-                  <div className="mb-6">
+                  <div className="flex justify-between items-start mb-6">
                     <h3 className="text-5xl font-black text-slate-900 uppercase tracking-tighter leading-none">
                       {item.crop}
                     </h3>
+                    <div className="text-right">
+                       <p className="text-3xl font-black text-emerald-600 leading-none">{item.confidence}%</p>
+                       <p className="text-[10px] font-bold text-slate-300 uppercase">Match Score</p>
+                    </div>
                   </div>
 
                   <div className="space-y-4">

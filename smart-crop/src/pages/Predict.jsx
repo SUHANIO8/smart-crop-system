@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 // --- FIREBASE INTEGRATION ---
 import { ref, onValue } from "firebase/database";
-import { rtdb } from "../services/firebase"; 
+import { rtdb } from "../services/firebase";
 
 /**
  * CONSOLIDATED COMPONENTS
@@ -88,9 +88,9 @@ const generateExplanation = (crop, form) => {
   if (Number(form.ph) > 6 && Number(form.ph) < 7.5) factors.push("optimal soil pH levels");
   if (Number(form.temperature) > 24) factors.push("ideal temperature resilience");
   if (Number(form.rainfall) > 100) factors.push("sufficient precipitation adaptability");
-  
-  return factors.length > 0 
-    ? `The analysis shows ${factors.join(", ")} which perfectly align with the growth cycle of ${crop}.` 
+
+  return factors.length > 0
+    ? `The analysis shows ${factors.join(", ")} which perfectly align with the growth cycle of ${crop}.`
     : `Based on the provided soil nutrients and current environmental parameters, ${crop} is the most viable choice for maximizing yield potential.`;
 };
 
@@ -114,7 +114,7 @@ export default function Predict() {
   useEffect(() => {
     // Listening to 'sensor' node directly based on your database structure
     const sensorRef = ref(rtdb, 'sensor');
-    
+
     const unsubscribe = onValue(sensorRef, (snapshot) => {
       const data = snapshot.val();
       console.log("Live Sensor Data:", data);
@@ -127,7 +127,9 @@ export default function Predict() {
           ph: data.ph !== undefined ? String(data.ph) : '',
           temperature: data.temperature !== undefined ? String(data.temperature) : '',
           humidity: data.humidity !== undefined ? String(data.humidity) : '',
+          // rainfall: data.rainfall !== undefined ? String(data.rainfall) : ''
           rainfall: data.rainfall !== undefined ? String(data.rainfall) : ''
+
         });
         setError('');
       } else {
@@ -141,6 +143,15 @@ export default function Predict() {
 
     return () => unsubscribe();
   }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
 
   const handleFetchRainfall = async () => {
     if (!city.trim()) return setError('Please enter a location to fetch rainfall data.');
@@ -166,7 +177,7 @@ export default function Predict() {
     try {
       const response = await apiInstance.post('/predict', {
         features: [
-          Number(form.N), Number(form.P), Number(form.K),
+          Number(form.nitrogen), Number(form.phosphorus), Number(form.potassium),
           Number(form.temperature), Number(form.humidity),
           Number(form.ph), Number(form.rainfall)
         ]
@@ -217,20 +228,20 @@ export default function Predict() {
         {/* Rainfall / Location context */}
         <div className="bg-white p-8 border border-slate-200 rounded-[2rem] shadow-sm">
           <h2 className="text-xl font-bold mb-4 text-emerald-700 flex items-center gap-2">
-             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-             </svg>
-             Regional Context
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+            Regional Context
           </h2>
-          <Input 
-            label="Fetch Rainfall for Location" 
-            placeholder="e.g. Buldhana, Nagpur" 
-            value={city} 
-            onChange={(e) => setCity(e.target.value)} 
+          <Input
+            label="Fetch Rainfall for Location"
+            placeholder="e.g. Buldhana, Nagpur"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
           />
-          <Button 
-            onClick={handleFetchRainfall} 
-            disabled={weatherLoading} 
+          <Button
+            onClick={handleFetchRainfall}
+            disabled={weatherLoading}
             className="w-full bg-emerald-600"
           >
             {weatherLoading ? 'Updating...' : 'Sync Rainfall Data'}
@@ -245,7 +256,7 @@ export default function Predict() {
             </svg>
             Sensor Parameters
           </h2>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <Input label="Nitrogen (N)" value={form.nitrogen} readOnly />
             <Input label="Phosphorus (P)" value={form.phosphorus} readOnly />
@@ -255,16 +266,38 @@ export default function Predict() {
             <Input label="Humidity (%)" value={form.humidity} readOnly />
           </div>
 
-          <Input 
-            label="Rainfall (mm) [Auto]" 
-            value={form.rainfall} 
-            readOnly 
-            className="bg-emerald-50/50 border-emerald-100" 
-          />
+          {/* <Input
 
-          <Button 
-            type="submit" 
-            className="w-full mt-4 py-4 text-lg font-black" 
+            label="Rainfall (mm)"
+            name="rainfall"
+            type="number"
+            value={form.rainfall}
+            onChange={handleChange}
+            placeholder="Enter rainfall manually"
+
+
+            className="bg-emerald-50/50 border-emerald-100"
+          /> */}
+
+
+          <Input
+  label="Rainfall (mm)"
+  name="rainfall"
+  type="number"
+  value={form.rainfall}
+  onChange={(e) =>
+    setForm((prev) => ({
+      ...prev,
+      rainfall: e.target.value
+    }))
+  }
+  placeholder="Enter rainfall manually"
+/>
+
+
+          <Button
+            type="submit"
+            className="w-full mt-4 py-4 text-lg font-black"
             disabled={loading || fetchingSensors}
           >
             {loading ? 'Analyzing Data...' : 'Get Recommendation'}
@@ -282,34 +315,34 @@ export default function Predict() {
       <div className="mt-20 space-y-10">
         <AnimatePresence>
           {results.map((item) => (
-            <motion.div 
-              key={item.crop} 
-              className={`bg-white border border-slate-200 rounded-[2.5rem] shadow-vibe overflow-hidden ${item.rank === 1 ? 'ring-2 ring-emerald-400 border-transparent' : ''}`} 
-              initial={{ opacity: 0, y: 30 }} 
+            <motion.div
+              key={item.crop}
+              className={`bg-white border border-slate-200 rounded-[2.5rem] shadow-vibe overflow-hidden ${item.rank === 1 ? 'ring-2 ring-emerald-400 border-transparent' : ''}`}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
               <div className="grid grid-cols-1 md:grid-cols-2">
                 <div className="relative overflow-hidden group">
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.crop} 
-                    className="w-full h-72 md:h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                  <img
+                    src={item.imageUrl}
+                    alt={item.crop}
+                    className="w-full h-72 md:h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute top-4 left-4 bg-slate-900/90 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
                     Rank #{item.rank}
                   </div>
                 </div>
-                
+
                 <div className="p-10 flex flex-col justify-center">
                   <div className="flex justify-between items-start mb-6">
                     <h3 className="text-5xl font-black text-slate-900 uppercase tracking-tighter leading-none">
                       {item.crop}
                     </h3>
-                    <div className="text-right">
+                    {/* <div className="text-right">
                        <p className="text-3xl font-black text-emerald-600 leading-none">{item.confidence}%</p>
                        <p className="text-[10px] font-bold text-slate-300 uppercase">Match Score</p>
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="space-y-4">
